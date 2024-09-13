@@ -1,0 +1,28 @@
+lights_tv_play:
+  alias: Lights_tv_play
+  sequence:
+  - data: {}
+    target:
+      device_id:
+      - 7980f7d57791e7f4c52b5e512bf0493b
+      - 0f50c7b3f7af1edaf9c5e3565be81fd7
+      - 0cf5aad9980390edb56eae53c77f8c88
+    action: light.turn_off
+  mode: single
+  description: ''
+lights_tv_stop:
+  alias: Lights_tv_stop
+  sequence:
+  - action: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.salon_attenue
+  description: ''
+lights_tv_pause:
+  alias: Lights_tv_pause
+  sequence:
+  - action: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.salon_veilleuse
+  description: ''

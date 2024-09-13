@@ -1,0 +1,49 @@
+---
+nspanel-1:
+  module: nspanel-lovelace-ui
+  class: NsPanelLovelaceUIManager
+  config:
+    panelRecvTopic: "tele/NSPANEL_02/RESULT"
+    panelSendTopic: "cmnd/NSPANEL_02/CustomSend"
+    updateMode: "auto-notify"
+    model: eu
+    locale: "fr_FR"
+    screensaver:
+      entities:
+        - entity: weather.frossay
+        - entity: sensor.weather_forecast_daily
+          type: 0
+        - entity: sensor.weather_forecast_daily
+          type: 1
+        - entity: sensor.weather_forecast_daily
+          type: 2
+        - entity: sensor.weather_forecast_daily
+          type: 3
+    cards:
+      - type: cardEntities
+        entities:
+          - entity: scene.salon_lumineux
+            show_icon: true
+            show_name: true
+            name: Lumineux
+          - entity: scene.salon_veilleuse
+            show_icon: true
+            show_name: true
+            name: Veilleuse
+          - entity: scene.salon_attenue
+            show_icon: true
+            show_name: true
+            name: Atténué
+        title: scene
+      - type: cardEntities
+        title: Contrôle lumières
+        entities:
+          - entity: light.salon_table
+            name: Lumière Salon Table
+            type: custom:slider-entity-row
+          - entity: light.salon_tv
+            name: Lumière Salon TV
+            type: custom:slider-entity-row
+          - entity: light.spot_ambiance_1
+            name: Spot Ambiance
+            type: custom:slider-entity-row

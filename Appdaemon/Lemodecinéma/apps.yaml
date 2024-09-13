@@ -1,0 +1,3 @@
+TVLightAutomatisation:
+  module: TVLightAutomatisation
+  class: TVLightAutomation
