@@ -1,0 +1,225 @@
+substitutions:
+  name: esphome-web-219874
+  friendly_name: ESPHome Piscine
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2024.6.0
+  name_add_mac_suffix: false
+  project:
+    name: esphome.web
+    version: dev
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+  level: DEBUG
+# Enable Home Assistant API
+api:
+
+# Allow Over-The-Air updates
+ota:
+- platform: esphome
+
+# Allow provisioning Wi-Fi via serial
+improv_serial:
+
+wifi:
+  # Set up a wifi access point
+  ap: {}
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device via WiFi AP.
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://esphome/example-configs/esphome-web/esp32.yaml@main
+  import_full_config: true
+
+# Sets up Bluetooth LE (Only on ESP32) to allow the user
+# to provision wifi credentials to the device.
+esp32_improv:
+  authorizer: none
+
+# To have a "next url" for improv serial
+web_server:
+
+
+uart:
+  id: uart_0
+  tx_pin: GPIO3
+  rx_pin: GPIO1
+  baud_rate: 115200
+
+globals:
+  - id: page_id
+    type: int
+    restore_value: no
+    initial_value: "99"
+# Relay configurations
+switch:
+  - platform: gpio
+    pin: GPIO19
+    inverted: true
+    name: "Relais 1"
+    id: relay_1
+  - platform: gpio
+    pin: GPIO18
+    inverted: true
+    name: "Relais 2"
+    id: relay_2
+  - platform: gpio
+    pin: GPIO17
+    inverted: true
+    name: "Relais 3"
+    id: relay_3
+  - platform: gpio
+    pin: GPIO16
+    inverted: true
+    name: "Relais 4"
+    id: relay_4
+# Sonde
+
+one_wire:
+  - platform: gpio
+    pin: GPIO2  
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: True
+
+ads1115:
+  - address: 0x48
+
+
+
+sensor:
+  - platform: dallas_temp
+    name: "Sonde de temperature"
+    id: temp_sensor
+    update_interval: 20s
+
+  - platform: template
+    name: "Statut de la Pompe"
+    id: pompe_status
+    update_interval: 1s
+    filters:
+      - lambda: |-
+          // La pompe est active si l'un des deux modes est actif
+          return (id(mode_force).state || id(mode_auto).state);
+
+    #debimetre
+  - platform: pulse_counter
+    pin: GPIO14  # Changez le numéro de pin si nécessaire
+    name: "Débitmètre YF-DN50"
+    update_interval: 1s
+    filters:
+      - multiply: 60
+  - platform: ads1115     #pH en volt
+    multiplexer: 'A0_GND'
+    gain: 6.144
+    id: "phvolt"
+    unit_of_measurement: ""
+    icon: "mdi:water"
+    update_interval: 2s
+    accuracy_decimals: 3
+
+
+  - platform: ads1115     #pH converti en pH
+    multiplexer: 'A0_GND'
+    gain: 6.144
+    name: "Ph Piscine"
+    id: "ph"
+    filters:
+       - calibrate_linear:
+           - 3.027 -> 4.01
+           - 2.542 -> 6.86
+           - 2.179 -> 9.18
+    unit_of_measurement: ""
+    icon: "mdi:water"
+    update_interval: 2s
+    accuracy_decimals: 3
+
+binary_sensor:
+
+  - platform: gpio
+    pin:
+      number: GPIO12  # GPIO connecté au bouton "forcé"
+      mode: INPUT_PULLDOWN  # Garantit que l'état est tiré vers le bas quand le bouton n'est pas pressé
+    name: "Mode Forcé"
+    id: mode_force
+    on_press:
+      - lambda: |-
+          ESP_LOGD("main", "Mode forcé activé : Pompe en marche forcée");
+          id(pompe_status).publish_state(true);
+
+    on_release:
+      - lambda: |-
+          ESP_LOGD("main", "Mode forcé désactivé : Pompe arrêtée si pas en auto");
+          if (!id(mode_auto).state) {
+            id(pompe_status).publish_state(false);
+          }
+
+  - platform: gpio
+    pin:
+      number: GPIO13  # GPIO connecté au bouton "auto"
+      mode: INPUT_PULLDOWN  # Garantit que l'état est tiré vers le bas quand le bouton n'est pas pressé
+    name: "Mode Auto"
+    id: mode_auto
+    on_press:
+      - lambda: |-
+          ESP_LOGD("main", "Mode auto activé : Pompe en marche automatique");
+          id(pompe_status).publish_state(true);
+
+    on_release:
+      - lambda: |-
+          ESP_LOGD("main", "Mode auto désactivé : Pompe arrêtée si pas en forcé");
+          if (!id(mode_force).state) {
+            id(pompe_status).publish_state(false);
+          }
+
+
+
+  - platform: nextion
+    page_id: 0
+    component_id: 0
+    id: Accueil
+    on_state:
+      then:
+        - lambda: |-
+            ESP_LOGD("main", "Bouton Accueil pressé, tentative de changement de page...");
+            id(page_id) = 1;
+            id(nextionD).goto_page("page1");
+            ESP_LOGD("main", "Changement de page vers Etat_filtre, page_id = %d", id(page_id));
+
+  - platform: nextion
+    page_id: 1
+    component_id: 1
+    id: btn_to_accueil
+    on_state:
+      then:
+        - lambda: |-
+            ESP_LOGD("main", "Bouton retour vers Accueil pressé...");
+            id(page_id) = 0; 
+            id(nextionD).goto_page("page0");
+            ESP_LOGD("main", "Retour à la page Accueil, page_id = %d", id(page_id));
+
+display:
+  - platform: nextion
+    id: nextionD
+    update_interval: 5s  # Augmenter l'intervalle de mise à jour à 5s
+    lambda: |-
+      if(id(page_id) == 0){ //page0
+        ESP_LOGD("main", "C'est la page 0");
+      } else if(id(page_id) == 1){ //page1
+        ESP_LOGD("main", "C'est la page 1");
+      } else {
+        ESP_LOGD("main", "Page inconnue !");
+      }
+

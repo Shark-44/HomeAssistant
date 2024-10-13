@@ -1,0 +1,33 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+#pour test freebox
+template:
+  - trigger:
+      - platform: time_pattern
+        hours: /1
+      - platform: homeassistant
+        event: start
+    action:
+      - service: weather.get_forecasts
+        data:
+          type: daily
+        target:
+          entity_id: weather.frossay # change to your weather entity
+        response_variable: daily
+    sensor:
+      - name: Weather Forecast Daily
+        unique_id: weather_forecast_daily
+        state: "{{ states('weather.frossay') }}" # # change to your weather entity in this line
+        attributes:
+          temperature: "{{ state_attr('weather.frossay', 'temperature') }}" # change to your weather entity
+          temperature_unit: "{{ state_attr('weather.frossay', 'temperature_unit') }}" # change to your weather entity
+          forecast: "{{ daily['weather.frossay'].forecast }}" # change to your weather entity
+

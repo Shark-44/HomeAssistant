@@ -1,0 +1,6 @@
+type: entities
+entities:
+  - entity: input_datetime.pompe_start_time
+    name: Heure démarrage pompe
+  - entity: input_button.pompe_validate
+    name: Valider l'heure de démarrage

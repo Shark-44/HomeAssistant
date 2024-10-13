@@ -1,0 +1,36 @@
+type: custom:button-card
+entity: sensor.etat_pompe
+name: Etat de la Pompe
+icon: mdi:pump
+show_state: true
+state:
+  - value: Marche Auto
+    icon: mdi:pump
+    styles:
+      icon:
+        - color: green
+      state:
+        - color: green
+        - font-size: 40px
+  - value: Marche Forcée
+    icon: mdi:pump
+    styles:
+      icon:
+        - color: yellow
+      state:
+        - color: yellow
+        - font-size: 40px
+  - value: Arrêt
+    icon: mdi:pump
+    styles:
+      icon:
+        - color: red
+      state:
+        - color: red
+        - font-size: 40px
+styles:
+  name:
+    - color: white
+    - font-size: 16px
+  card:
+    - padding: 10px

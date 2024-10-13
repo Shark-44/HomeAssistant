@@ -1,0 +1,55 @@
+# Pour les cards
+frontend:
+  extra_module_url:
+    - /local/card-mod.js
+
+# pour la piscine et autres capteurs
+sensor:
+  - platform: template
+    sensors:
+      # Image de l'interrupteur commande pompe
+      etat_pompe:
+        friendly_name: "Etat de la Pompe"
+        value_template: >
+          {% if is_state('binary_sensor.esphome_web_219874_mode_forc', 'on') %}
+            Marche Forcée
+          {% elif is_state('binary_sensor.esphome_web_219874_mode_auto', 'on') %}
+            Marche Auto
+          {% else %}
+            Arrêt
+          {% endif %}
+      # Transformation de la valeur du débitmètre en m³/h
+      pool_flow_rate:
+        friendly_name: "Débit de la piscine"
+        unit_of_measurement: "m³/h"
+        value_template: "{{ (states('sensor.esphome_web_219874_d_bitm_tre_yf_dn50') | float * (1/600)) | round(1) }}"
+      # Définition de la valeur du débitmètre pour des seuils
+      pool_flow_status:
+        friendly_name: "État du débit de la piscine"
+        value_template: >-
+          {% set flow = states('sensor.pool_flow_rate') | float %}
+          {% set theoretical_flow = 100 %}
+          {% set flow_percentage = (flow / theoretical_flow) * 100 %}
+          {% if flow_percentage >= 70 and flow_percentage <= 130 %}
+            green
+          {% elif flow_percentage >= 20 and flow_percentage < 180 %}
+            yellow
+          {% else %}
+            red
+          {% endif %}
+  # Capteur de temps pour gérer l'heure actuelle
+  - platform: time_date
+    display_options:
+      - 'time'
+
+# Input pour l'heure de démarrage de la pompe
+input_datetime:
+  pompe_start_time:
+    name: "Heure de démarrage de la pompe"
+    has_time: true
+    has_date: false
+# Input pour valider la modifocation l'heure de demarrage
+input_button:
+  pompe_validate:
+    name: Valider l'heure de démarrage
+    icon: mdi:check

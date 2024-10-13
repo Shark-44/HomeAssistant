@@ -1,0 +1,22 @@
+type: custom:button-card
+entity: sensor.pool_flow_rate
+name: Débit / Filtration
+show_state: true
+icon: mdi:air-filter
+styles:
+  card:
+    - padding: 5px
+  name:
+    - font-size: 14px
+    - color: white
+    - text-align: center
+  state:
+    - font-size: 40px
+    - color: white
+    - text-align: center
+  icon:
+    - color: >-
+        [[[  if (states['sensor.pool_flow_status'].state === 'green') return
+        'green'; if (states['sensor.pool_flow_status'].state === 'yellow')
+        return 'yellow'; if (states['sensor.pool_flow_status'].state === 'red')
+        return 'red'; return 'white';  ]]]

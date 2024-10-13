@@ -1,0 +1,18 @@
+type: custom:button-card
+entity: sensor.esphome_web_219874_ph_piscine
+name: PH Piscine
+show_state: true
+icon: mdi:ph
+styles:
+  card:
+    - padding: 10px
+  name:
+    - font-size: 20px
+    - color: white
+    - text-align: center
+  state:
+    - font-size: 40px
+    - color: white
+    - text-align: center
+  icon:
+    - color: yellow
