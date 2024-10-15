@@ -1,0 +1,3 @@
+type: entities
+entities:
+  - entity: input_select.pool_flow_simulation

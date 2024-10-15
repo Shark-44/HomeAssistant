@@ -53,3 +53,12 @@ input_button:
   pompe_validate:
     name: Valider l'heure de démarrage
     icon: mdi:check
+# Simulateur de debit pour test automatisation
+input_select:
+  pool_flow_simulation:
+    name: "Simulation de l'état du débit"
+    options:
+      - "green"
+      - "yellow"
+      - "red"
+    initial: "green"

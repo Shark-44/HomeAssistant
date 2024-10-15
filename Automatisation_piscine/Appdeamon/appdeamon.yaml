@@ -1,0 +1,7 @@
+# dans addons_configs/a0d7b954_appdeamon quelques lignes pour isoler les logs de PumpAutomation.py
+logs:
+  PumpAutomation_log:
+    name: PumpAutomation_Log
+    filename: /homeassistant/logs/PumpAutomation.log
+    log_generations: 2
+    log_size: 50000

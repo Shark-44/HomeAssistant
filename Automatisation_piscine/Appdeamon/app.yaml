@@ -1,3 +1,4 @@
 pump_automation:
   module: PumpAutomation
   class: PumpAutomation
+  log: PumpAutomation_log
